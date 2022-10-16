@@ -128,6 +128,7 @@ class Parse(tokenArray: Array[Token]) {
               case HIJIRITSU => if (!currentToken.getAllFeaturesArray()(CFORM).equals(MEIREI_I))
                 TokenParseActions(pos = pos, attachToPrevious = true)
                 else TokenParseActions(pos = pos)
+              case _ => TokenParseActions(pos = pos)
             }
           case KEIYOUSHI => TokenParseActions(pos = Pos.Adjective)
           case JOSHI =>
