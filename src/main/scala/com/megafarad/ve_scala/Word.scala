@@ -22,6 +22,8 @@ case class Word(reading: Option[String], transcription: Option[String], grammar:
     case None => Some("_".concat(suffix))
   })
 
+  override def toString: String = this.word
+
 
 
 }
