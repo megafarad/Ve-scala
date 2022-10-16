@@ -5,9 +5,13 @@ import com.atilika.kuromoji.ipadic.Token
 import java.util
 import scala.annotation.unused
 
-class Parse(tokenArray: Array[Token]) {
+/**
+ *
+ * @param tokenSeq
+ */
+class Parse(tokenSeq: Seq[Token]) {
 
-  if (tokenArray.length == 0) throw new IllegalArgumentException("Cannot parse an empty array of tokens")
+  if (tokenSeq.isEmpty) throw new IllegalArgumentException("Cannot parse an empty array of tokens")
 
   private val NO_DATA = "*"
   private val POS1 = 0
@@ -21,7 +25,7 @@ class Parse(tokenArray: Array[Token]) {
   private val PRONUNCIATION = 8
 
   def words: Seq[Word] = {
-    val (words, _)  = tokenArray.zipWithIndex.foldLeft[(Seq[Word], Option[Token])]((Nil, None)) {
+    val (words, _)  = tokenSeq.zipWithIndex.foldLeft[(Seq[Word], Option[Token])]((Nil, None)) {
       case ((parsedWords: Seq[Word], lastToken: Option[Token]), (currentToken: Token, index: Int) ) =>
         val finalSlot = parsedWords.size - 1
         val currentPOSArray = util.Arrays.copyOfRange(currentToken.getAllFeaturesArray, POS1, POS4 + 1)
@@ -39,10 +43,10 @@ class Parse(tokenArray: Array[Token]) {
                 case DAIMEISHI =>
                   TokenParseActions(pos = Pos.Pronoun)
                 case FUKUSHIKANOU | SAHENSETSUZOKU | KEIYOUDOUSHIGOKAN | NAIKEIYOUSHIGOKAN =>
-                  if (currentPOSArray(POS3).equals(NO_DATA) || index == tokenArray.length - 1) {
+                  if (currentPOSArray(POS3).equals(NO_DATA) || index == tokenSeq.length - 1) {
                     TokenParseActions(pos = Pos.Noun)
                   } else {
-                    val following = tokenArray(index + 1)
+                    val following = tokenSeq(index + 1)
                     val followingPOSArray = util.Arrays.copyOfRange(following.getAllFeaturesArray, POS1, POS4 + 1)
                     following.getAllFeaturesArray()(CTYPE) match {
                       case SAHEN_SURU => TokenParseActions(pos = Pos.Verb, eatNext = true)
@@ -59,9 +63,9 @@ class Parse(tokenArray: Array[Token]) {
                     }
                   }
                 case HIJIRITSU | TOKUSHU =>
-                  if (currentPOSArray(POS3).equals(NO_DATA) || index == tokenArray.length - 1)
+                  if (currentPOSArray(POS3).equals(NO_DATA) || index == tokenSeq.length - 1)
                     TokenParseActions(pos = Pos.Noun) else {
-                    val following = tokenArray(index + 1)
+                    val following = tokenSeq(index + 1)
                     val followingPOSArray = util.Arrays.copyOfRange(following.getAllFeaturesArray, POS1, POS4 + 1)
                     currentPOSArray(POS3) match {
                       case FUKUSHIKANOU =>
@@ -167,8 +171,8 @@ class Parse(tokenArray: Array[Token]) {
             word = currentToken.getSurface,
             tokens = Seq(currentToken))
           val withEatNext: Word = if (actions.eatNext) {
-            if (index == tokenArray.length - 1) throw new IllegalStateException("There's a path that allows array overshooting.")
-            val following: Token = tokenArray(index + 1)
+            if (index == tokenSeq.length - 1) throw new IllegalStateException("There's a path that allows array overshooting.")
+            val following: Token = tokenSeq(index + 1)
             val withMost: Word = word.copy(tokens = word.tokens :+ following)
               .withAppendToWord(following.getSurface)
               .withAppendToReading(following.getReading)
