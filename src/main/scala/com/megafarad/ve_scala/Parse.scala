@@ -80,8 +80,8 @@ class Parse(tokenArray: Array[Token]) {
                       case KEIYOUDOUSHIGOKAN =>
                         TokenParseActions(pos = Pos.Adjective,
                           eatNext = following.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DA) &&
-                            (following.getAllFeaturesArray()(CTYPE).equals(TAIGENSETSUZOKU) ||
-                              followingPOSArray(POS2).equals(RENTAIKA)))
+                            following.getAllFeaturesArray()(CFORM).equals(TAIGENSETSUZOKU) ||
+                              followingPOSArray(POS2).equals(RENTAIKA))
 
                       case _ => TokenParseActions(pos = Pos.Noun)
                     }
