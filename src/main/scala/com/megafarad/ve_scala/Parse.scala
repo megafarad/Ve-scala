@@ -6,8 +6,9 @@ import java.util
 import scala.annotation.unused
 
 /**
+ * Used to parse Kuromoji tokens into "[[Word]]s."
  *
- * @param tokenSeq
+ * @param tokenSeq Tokens to parse
  */
 class Parse(tokenSeq: Seq[Token]) {
 
@@ -24,6 +25,10 @@ class Parse(tokenSeq: Seq[Token]) {
   private val READING = 7
   private val PRONUNCIATION = 8
 
+  /**
+   * Used to return the parsed [[Word]]s.
+   * @return parsed [[Word]]s.
+   */
   def words: Seq[Word] = {
     val (words, _)  = tokenSeq.zipWithIndex.foldLeft[(Seq[Word], Option[Token])]((Nil, None)) {
       case ((parsedWords: Seq[Word], lastToken: Option[Token]), (currentToken: Token, index: Int) ) =>
@@ -39,7 +44,7 @@ class Parse(tokenSeq: Seq[Token]) {
             } else {
               currentPOSArray(POS2) match {
                 case KOYUUMEISHI =>
-                  TokenParseActions(pos = Pos.Pronoun)
+                  TokenParseActions(pos = Pos.ProperNoun)
                 case DAIMEISHI =>
                   TokenParseActions(pos = Pos.Pronoun)
                 case FUKUSHIKANOU | SAHENSETSUZOKU | KEIYOUDOUSHIGOKAN | NAIKEIYOUSHIGOKAN =>
