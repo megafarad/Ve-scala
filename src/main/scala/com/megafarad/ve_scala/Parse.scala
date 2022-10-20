@@ -48,7 +48,7 @@ class Parse(tokenSeq: Seq[Token]) {
                 case DAIMEISHI =>
                   TokenParseActions(pos = Pos.Pronoun)
                 case FUKUSHIKANOU | SAHENSETSUZOKU | KEIYOUDOUSHIGOKAN | NAIKEIYOUSHIGOKAN =>
-                  if (currentPOSArray(POS3).equals(NO_DATA) || index == tokenSeq.length - 1) {
+                  if (index == tokenSeq.length - 1) {
                     TokenParseActions(pos = Pos.Noun)
                   } else {
                     val following = tokenSeq(index + 1)
@@ -142,8 +142,8 @@ class Parse(tokenSeq: Seq[Token]) {
           case KEIYOUSHI => TokenParseActions(pos = Pos.Adjective)
           case JOSHI =>
             val qualifyingList = Seq(TE, DE, BA)
-            if (currentPOSArray(POS2).equals(SETSUZOKUJOSHI) && qualifyingList.contains(currentToken.getSurface) ||
-                currentToken.getSurface.equals(NI)) TokenParseActions(pos = Pos.Postposition, attachToPrevious = true)
+            if (currentPOSArray(POS2).equals(SETSUZOKUJOSHI) && qualifyingList.contains(currentToken.getSurface))
+              TokenParseActions(pos = Pos.Postposition, attachToPrevious = true)
             else TokenParseActions(pos = Pos.Postposition)
           case RENTAISHI => TokenParseActions(pos = Pos.Determiner)
           case SETSUZOKUSHI => TokenParseActions(pos = Pos.Conjunction)
