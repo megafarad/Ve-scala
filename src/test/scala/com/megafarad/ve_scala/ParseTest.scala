@@ -6,7 +6,7 @@ import scala.jdk.CollectionConverters._
 
 class ParseTest extends AnyFlatSpec {
   private def parseIntoWords(sentence: String) = {
-    val tokensList = tokenizeSentence(sentence)
+    val tokensList = new Tokenizer().tokenize(sentence)
 
     val parser = new Parse(tokensList.asScala.toSeq)
     val words = parser.words
@@ -33,10 +33,6 @@ class ParseTest extends AnyFlatSpec {
     val words = parseIntoWords(sentence)
 
     println(words)
-  }
-
-  private def tokenizeSentence(sentence: String) = {
-    new Tokenizer().tokenize(sentence)
   }
 
   it should "parse a proper noun" in {
@@ -71,6 +67,14 @@ class ParseTest extends AnyFlatSpec {
     val words = parseIntoWords(sentence)
 
     assert(words.takeRight(3).map(_.partOfSpeech).equals(Seq(Pos.Adverb, Pos.Postposition, Pos.Verb)))
+  }
+
+  it should "parse the verb in 彼女の容態は昨日悪化した。 correctly" in {
+    val sentence = "彼女の容態は昨日悪化した。"
+    val words = parseIntoWords(sentence)
+
+    assert(words.exists(_.word.equals("悪化した")))
+    assert(words.find(_.word.equals("悪化した")).exists(_.partOfSpeech == Pos.Verb))
   }
 
 }

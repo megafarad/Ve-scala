@@ -30,164 +30,169 @@ class Parse(tokenSeq: Seq[Token]) {
    * @return parsed [[Word]]s.
    */
   def words: Seq[Word] = {
-    val (words, _)  = tokenSeq.zipWithIndex.foldLeft[(Seq[Word], Option[Token])]((Nil, None)) {
-      case ((parsedWords: Seq[Word], lastToken: Option[Token]), (currentToken: Token, index: Int) ) =>
+    val (words, _, _)  = tokenSeq.zipWithIndex.foldLeft[(Seq[Word], Option[Token], Option[TokenParseActions])]((Nil, None, None)) {
+      case ((parsedWords: Seq[Word], lastToken: Option[Token], lastActions: Option[TokenParseActions]), (currentToken: Token, index: Int) ) =>
         val finalSlot = parsedWords.size - 1
         val currentPOSArray = util.Arrays.copyOfRange(currentToken.getAllFeaturesArray, POS1, POS4 + 1)
         if (currentPOSArray.isEmpty || currentPOSArray(POS1).equals(NO_DATA))
           throw new IllegalStateException("No Pos data found for token")
 
-        val actions: TokenParseActions = currentPOSArray(POS1) match {
+        val actions: Option[TokenParseActions] = if (lastActions.exists(_.eatNext)) None else currentPOSArray(POS1) match {
           case MEISHI =>
             if (currentPOSArray(POS2).equals(NO_DATA)) {
-              TokenParseActions(pos = Pos.Noun)
+              Some(TokenParseActions(pos = Pos.Noun))
             } else {
               currentPOSArray(POS2) match {
                 case KOYUUMEISHI =>
-                  TokenParseActions(pos = Pos.ProperNoun)
+                  Some(TokenParseActions(pos = Pos.ProperNoun))
                 case DAIMEISHI =>
-                  TokenParseActions(pos = Pos.Pronoun)
+                  Some(TokenParseActions(pos = Pos.Pronoun))
                 case FUKUSHIKANOU | SAHENSETSUZOKU | KEIYOUDOUSHIGOKAN | NAIKEIYOUSHIGOKAN =>
                   if (index == tokenSeq.length - 1) {
-                    TokenParseActions(pos = Pos.Noun)
+                    Some(TokenParseActions(pos = Pos.Noun))
                   } else {
                     val following = tokenSeq(index + 1)
                     val followingPOSArray = util.Arrays.copyOfRange(following.getAllFeaturesArray, POS1, POS4 + 1)
                     following.getAllFeaturesArray()(CTYPE) match {
-                      case SAHEN_SURU => TokenParseActions(pos = Pos.Verb, eatNext = true)
+                      case SAHEN_SURU => Some(TokenParseActions(pos = Pos.Verb, eatNext = true))
                       case TOKUSHU_DA =>
                         if (followingPOSArray(POS2).equals(TAIGENSETSUZOKU)) {
-                          TokenParseActions(pos = Pos.Adjective, eatNext = true, eatLemma = false)
+                          Some(TokenParseActions(pos = Pos.Adjective, eatNext = true, eatLemma = false))
                         } else {
-                          TokenParseActions(pos = Pos.Adjective)
+                          Some(TokenParseActions(pos = Pos.Adjective))
                         }
-                      case TOKUSHU_NAI => TokenParseActions(pos = Pos.Adjective, eatNext = true)
+                      case TOKUSHU_NAI => Some(TokenParseActions(pos = Pos.Adjective, eatNext = true))
                       case _ => if (followingPOSArray(POS1)
-                        .equals(JOSHI)) TokenParseActions(pos = Pos.Adverb) else TokenParseActions(pos = Pos.Noun)
+                        .equals(JOSHI))
+                        Some(TokenParseActions(pos = Pos.Adverb)) else Some(TokenParseActions(pos = Pos.Noun))
 
                     }
                   }
                 case HIJIRITSU | TOKUSHU =>
                   if (currentPOSArray(POS3).equals(NO_DATA) || index == tokenSeq.length - 1)
-                    TokenParseActions(pos = Pos.Noun) else {
+                    Some(TokenParseActions(pos = Pos.Noun)) else {
                     val following = tokenSeq(index + 1)
                     val followingPOSArray = util.Arrays.copyOfRange(following.getAllFeaturesArray, POS1, POS4 + 1)
                     currentPOSArray(POS3) match {
                       case FUKUSHIKANOU =>
                         if (followingPOSArray(POS1).equals(JOSHI) &&
-                          following.getSurface.equals(NI)) TokenParseActions(pos = Pos.Adverb) else
-                          TokenParseActions(pos = Pos.Noun)
+                          following.getSurface.equals(NI)) Some(TokenParseActions(pos = Pos.Adverb)) else
+                          Some(TokenParseActions(pos = Pos.Noun))
 
                       case JODOUSHIGOKAN =>
                         if (following.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DA))
-                          TokenParseActions(pos = Pos.Verb, grammar = Grammar.Auxiliary,
-                            eatNext = following.getAllFeaturesArray()(CFORM).equals(TAIGENSETSUZOKU)) else
+                          Some(TokenParseActions(pos = Pos.Verb, grammar = Grammar.Auxiliary,
+                            eatNext = following.getAllFeaturesArray()(CFORM).equals(TAIGENSETSUZOKU))) else
                           if (followingPOSArray(POS1).equals(JOSHI) &&
                           followingPOSArray(POS3).equals(FUKUSHIKA))
-                            TokenParseActions(pos = Pos.Adverb, eatNext = true) else TokenParseActions(pos = Pos.Noun)
+                            Some(TokenParseActions(pos = Pos.Adverb, eatNext = true))
+                          else Some(TokenParseActions(pos = Pos.Noun))
 
                       case KEIYOUDOUSHIGOKAN =>
-                        TokenParseActions(pos = Pos.Adjective,
+                        Some(TokenParseActions(pos = Pos.Adjective,
                           eatNext = following.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DA) &&
                             following.getAllFeaturesArray()(CFORM).equals(TAIGENSETSUZOKU) ||
-                              followingPOSArray(POS2).equals(RENTAIKA))
+                              followingPOSArray(POS2).equals(RENTAIKA)))
 
-                      case _ => TokenParseActions(pos = Pos.Noun)
+                      case _ => Some(TokenParseActions(pos = Pos.Noun))
                     }
                   }
                 case KAZU =>
                   if (parsedWords.nonEmpty && parsedWords(finalSlot).partOfSpeech.equals(Pos.Number))
-                    TokenParseActions(pos = Pos.Number, attachToPrevious = true, alsoAttachToLemma = true)
-                    else TokenParseActions(pos = Pos.Number)
+                    Some(TokenParseActions(pos = Pos.Number, attachToPrevious = true, alsoAttachToLemma = true))
+                    else Some(TokenParseActions(pos = Pos.Number))
 
                 case SETSUBI =>
-                  if (currentPOSArray(POS3).equals(JINMEI)) TokenParseActions(pos = Pos.Suffix) else
+                  if (currentPOSArray(POS3).equals(JINMEI)) Some(TokenParseActions(pos = Pos.Suffix)) else
                     if (currentPOSArray(POS3).equals(TOKUSHU) && currentToken.getAllFeaturesArray()(BASIC).equals(SA))
-                      TokenParseActions(pos = Pos.Noun, updatePos = true) else
-                      TokenParseActions(pos = Pos.Noun, alsoAttachToLemma = true, attachToPrevious = true)
+                      Some(TokenParseActions(pos = Pos.Noun, updatePos = true)) else
+                      Some(TokenParseActions(pos = Pos.Noun, alsoAttachToLemma = true, attachToPrevious = true))
 
-                case SETSUZOKUSHITEKI => TokenParseActions(pos = Pos.Conjunction)
+                case SETSUZOKUSHITEKI => Some(TokenParseActions(pos = Pos.Conjunction))
 
-                case DOUSHIHIJIRITSUTEKI => TokenParseActions(pos = Pos.Verb, grammar = Grammar.Nominal)
+                case DOUSHIHIJIRITSUTEKI => Some(TokenParseActions(pos = Pos.Verb, grammar = Grammar.Nominal))
 
-                case _ => TokenParseActions(pos = Pos.Noun)
+                case _ => Some(TokenParseActions(pos = Pos.Noun))
 
               }
             }
-          case SETTOUSHI => TokenParseActions(pos = Pos.Prefix)
+          case SETTOUSHI => Some(TokenParseActions(pos = Pos.Prefix))
           case JODOUSHI =>
             val defaultPos = Pos.Postposition
             val qualifyingList = Seq(TOKUSHU_TA, TOKUSHU_NAI, TOKUSHU_TAI, TOKUSHU_MASU, TOKUSHU_NU)
             if (lastToken.isEmpty || !util.Arrays.copyOfRange(lastToken.get.getAllFeaturesArray,
               POS1, POS4 + 1)(POS2).equals(KAKARIJOSHI) &&
               qualifyingList.contains(currentToken.getAllFeaturesArray()(CTYPE)))
-              TokenParseActions(pos = defaultPos, attachToPrevious = true)
+              Some(TokenParseActions(pos = defaultPos, attachToPrevious = true))
             else if (currentToken.getAllFeaturesArray()(CTYPE).equals(FUHENKAGATA) &&
               currentToken.getAllFeaturesArray()(BASIC).equals(NN))
-              TokenParseActions(pos = defaultPos, attachToPrevious = true)
+              Some(TokenParseActions(pos = defaultPos, attachToPrevious = true))
             else if (currentToken.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DA) ||
               currentToken.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DESU) && !currentToken.getSurface.equals(NA))
-              TokenParseActions(pos = Pos.Verb)
-            else TokenParseActions(pos = defaultPos)
+              Some(TokenParseActions(pos = Pos.Verb))
+            else Some(TokenParseActions(pos = defaultPos))
 
           case DOUSHI =>
             val pos = Pos.Verb
             currentPOSArray(POS2) match {
-              case SETSUBI => TokenParseActions(pos = pos, attachToPrevious = true)
+              case SETSUBI => Some(TokenParseActions(pos = pos, attachToPrevious = true))
               case HIJIRITSU => if (!currentToken.getAllFeaturesArray()(CFORM).equals(MEIREI_I))
-                TokenParseActions(pos = pos, attachToPrevious = true)
-                else TokenParseActions(pos = pos)
-              case _ => TokenParseActions(pos = pos)
+                Some(TokenParseActions(pos = pos, attachToPrevious = true))
+                else Some(TokenParseActions(pos = pos))
+              case _ => Some(TokenParseActions(pos = pos))
             }
-          case KEIYOUSHI => TokenParseActions(pos = Pos.Adjective)
+          case KEIYOUSHI => Some(TokenParseActions(pos = Pos.Adjective))
           case JOSHI =>
             val qualifyingList = Seq(TE, DE, BA)
             if (currentPOSArray(POS2).equals(SETSUZOKUJOSHI) && qualifyingList.contains(currentToken.getSurface))
-              TokenParseActions(pos = Pos.Postposition, attachToPrevious = true)
-            else TokenParseActions(pos = Pos.Postposition)
-          case RENTAISHI => TokenParseActions(pos = Pos.Determiner)
-          case SETSUZOKUSHI => TokenParseActions(pos = Pos.Conjunction)
-          case FUKUSHI => TokenParseActions(pos = Pos.Adverb)
-          case KIGOU => TokenParseActions(pos = Pos.Symbol)
-          case FIRAA | KANDOUSHI => TokenParseActions(pos = Pos.Interjection)
-          case SONOTA => TokenParseActions(pos = Pos.Other)
-          case _ => TokenParseActions(pos = Pos.TBD)
+              Some(TokenParseActions(pos = Pos.Postposition, attachToPrevious = true))
+            else Some(TokenParseActions(pos = Pos.Postposition))
+          case RENTAISHI => Some(TokenParseActions(pos = Pos.Determiner))
+          case SETSUZOKUSHI => Some(TokenParseActions(pos = Pos.Conjunction))
+          case FUKUSHI => Some(TokenParseActions(pos = Pos.Adverb))
+          case KIGOU => Some(TokenParseActions(pos = Pos.Symbol))
+          case FIRAA | KANDOUSHI => Some(TokenParseActions(pos = Pos.Interjection))
+          case SONOTA => Some(TokenParseActions(pos = Pos.Other))
+          case _ => Some(TokenParseActions(pos = Pos.TBD))
         }
 
-        val updatedWords: Seq[Word] = if (actions.attachToPrevious && parsedWords.nonEmpty) {
-          parsedWords match {
-            case init :+ last =>
-              val baseAttachedPrevious: Word = last.copy(tokens = last.tokens :+ currentToken)
-                .withAppendToWord(currentToken.getSurface)
-                .withAppendToReading(getFeatureSafely(currentToken, READING))
-                .withAppendToTranscription(getFeatureSafely(currentToken, PRONUNCIATION))
-              val withAttachedLemma: Word = if (actions.alsoAttachToLemma)
-                baseAttachedPrevious.withAppendToLemma(currentToken.getAllFeaturesArray()(BASIC)) else baseAttachedPrevious
-              val withUpdatePos: Word = if (actions.updatePos) withAttachedLemma.copy(partOfSpeech = actions.pos) else withAttachedLemma
-              init :+ withUpdatePos
-            case _ => Nil
+        val updatedWords: Seq[Word] = actions match {
+          case Some(parsedActions) => if (parsedActions.attachToPrevious && parsedWords.nonEmpty) {
+            parsedWords match {
+              case init :+ last =>
+                val baseAttachedPrevious: Word = last.copy(tokens = last.tokens :+ currentToken)
+                  .withAppendToWord(currentToken.getSurface)
+                  .withAppendToReading(getFeatureSafely(currentToken, READING))
+                  .withAppendToTranscription(getFeatureSafely(currentToken, PRONUNCIATION))
+                val withAttachedLemma: Word = if (parsedActions.alsoAttachToLemma)
+                  baseAttachedPrevious.withAppendToLemma(currentToken.getAllFeaturesArray()(BASIC)) else baseAttachedPrevious
+                val withUpdatePos: Word = if (parsedActions.updatePos) withAttachedLemma.copy(partOfSpeech = parsedActions.pos) else withAttachedLemma
+                init :+ withUpdatePos
+              case _ => Nil
+            }
+          } else {
+            val word = Word(reading = Option(currentToken.getReading),
+              transcription = Option(getFeatureSafely(currentToken, PRONUNCIATION)),
+              grammar = parsedActions.grammar,
+              lemma = Option(currentToken.getAllFeaturesArray()(BASIC)),
+              partOfSpeech = parsedActions.pos,
+              word = currentToken.getSurface,
+              tokens = Seq(currentToken))
+            val withEatNext: Word = if (parsedActions.eatNext) {
+              if (index == tokenSeq.length - 1) throw new IllegalStateException("There's a path that allows array overshooting.")
+              val following: Token = tokenSeq(index + 1)
+              val withMost: Word = word.copy(tokens = word.tokens :+ following)
+                .withAppendToWord(following.getSurface)
+                .withAppendToReading(following.getReading)
+                .withAppendToTranscription(getFeatureSafely(following, PRONUNCIATION))
+              if (parsedActions.eatLemma) withMost.withAppendToLemma(following.getAllFeaturesArray()(BASIC)) else withMost
+            } else word
+            parsedWords :+ withEatNext
           }
-        } else {
-          val word = Word(reading = Option(currentToken.getReading),
-            transcription = Option(getFeatureSafely(currentToken, PRONUNCIATION)),
-            grammar = actions.grammar,
-            lemma = Option(currentToken.getAllFeaturesArray()(BASIC)),
-            partOfSpeech = actions.pos,
-            word = currentToken.getSurface,
-            tokens = Seq(currentToken))
-          val withEatNext: Word = if (actions.eatNext) {
-            if (index == tokenSeq.length - 1) throw new IllegalStateException("There's a path that allows array overshooting.")
-            val following: Token = tokenSeq(index + 1)
-            val withMost: Word = word.copy(tokens = word.tokens :+ following)
-              .withAppendToWord(following.getSurface)
-              .withAppendToReading(following.getReading)
-              .withAppendToTranscription(getFeatureSafely(following, PRONUNCIATION))
-            if (actions.eatLemma) withMost.withAppendToLemma(following.getAllFeaturesArray()(BASIC)) else withMost
-          } else word
-          parsedWords :+ withEatNext
+          case None => parsedWords
         }
 
-        (updatedWords, Some(currentToken))
+        (updatedWords, Some(currentToken), actions)
     }
     words
   }
