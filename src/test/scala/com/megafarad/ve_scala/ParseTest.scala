@@ -1,10 +1,14 @@
 package com.megafarad.ve_scala
 
-import com.atilika.kuromoji.ipadic.Tokenizer
+import com.atilika.kuromoji.ipadic.{Token, Tokenizer}
+import org.mockito.Mockito
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
+
 import scala.jdk.CollectionConverters._
 
-class ParseTest extends AnyFlatSpec {
+class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   private def parseIntoWords(sentence: String) = {
     val tokensList = new Tokenizer().tokenize(sentence)
 
@@ -15,6 +19,16 @@ class ParseTest extends AnyFlatSpec {
     val parser = new Parse(tokensList.asScala.toSeq)
     val words = parser.words
     words
+  }
+
+  private def createMockToken(surface: String, rawFeaturesArray: String): Token = {
+    val mockToken = mock[Token]
+    val featuresArray = rawFeaturesArray.split(",")
+    Mockito.when(mockToken.getAllFeaturesArray).thenReturn(featuresArray)
+    Mockito.when(mockToken.getSurface).thenReturn(surface)
+    Mockito.when(mockToken.getReading).thenReturn(featuresArray(7))
+    mockToken
+
   }
 
   behavior of "Parse"
@@ -43,103 +57,154 @@ class ParseTest extends AnyFlatSpec {
     val sentence = "田中さんは魚を食べました"
     val words = parseIntoWords(sentence)
 
-    assert(words.head.partOfSpeech == Pos.ProperNoun)
+    words.head.partOfSpeech should be (Pos.ProperNoun)
   }
 
   it should "parse a pronoun" in {
     val sentence = "私はアメリカ人です。"
     val words = parseIntoWords(sentence)
 
-    assert(words.head.partOfSpeech == Pos.Pronoun)
+    words.head.partOfSpeech should be (Pos.Pronoun)
   }
 
   it should "parse numbers" in {
     val sentence = "三十年式歩兵銃"
     val words = parseIntoWords(sentence)
-    assert(words.head.partOfSpeech == Pos.Number)
+    words.head.partOfSpeech should be (Pos.Number)
   }
 
   it should "parse FUKUSHIKANOU" in {
     val sentence = "午後に魚を食べた"
     val words = parseIntoWords(sentence)
-
-    assert(words.take(2).map(_.partOfSpeech).equals(Seq(Pos.Adverb, Pos.Postposition)))
+    words.take(2).map(_.partOfSpeech) should be (Seq(Pos.Adverb, Pos.Postposition))
   }
 
   it should "parse 彼はその問題と関係がないことを明らかにした correctly" in {
     val sentence = "彼はその問題と関係がないことを明らかにした"
     val words = parseIntoWords(sentence)
-
-    assert(words.takeRight(3).map(_.partOfSpeech).equals(Seq(Pos.Adverb, Pos.Postposition, Pos.Verb)))
+    words.takeRight(3).map(_.partOfSpeech) should be (Seq(Pos.Adverb, Pos.Postposition, Pos.Verb))
   }
 
   it should "parse the verb in 彼女の容態は昨日悪化した。 correctly" in {
     val sentence = "彼女の容態は昨日悪化した。"
     val words = parseIntoWords(sentence)
 
-    assert(words.exists(_.word.equals("悪化した")))
-    assert(words.find(_.word.equals("悪化した")).exists(_.partOfSpeech == Pos.Verb))
+    words(5).word should be ("悪化した")
+    words(5).partOfSpeech should be (Pos.Verb)
   }
 
   it should "properly parse Keiyoudoushigokan" in {
     val sentence = "貴職らにとっては重要なことです。"
     val words = parseIntoWords(sentence)
 
-    assert(words.exists(_.word.equals("重要な")))
-    assert(words.find(_.word.equals("重要な")).exists(_.partOfSpeech.equals(Pos.Adjective)))
+    words(4).word should be ("重要な")
+    words(4).partOfSpeech should be (Pos.Adjective)
   }
 
   it should "properly parse Naikeiyoushigokan" in {
     val sentence = "彼女は昨夜とんでもない時間に電話してきた。"
     val words = parseIntoWords(sentence)
 
-    assert(words.exists(_.word.equals("とんでもない")))
-    assert(words.find(_.word.equals("とんでもない")).exists(_.partOfSpeech.equals(Pos.Adjective)))
+    words(3).word should be ("とんでもない")
+    words(3).partOfSpeech should be (Pos.Adjective)
   }
 
   it should "properly parse Meishi hijiritsu fukushikanou" in {
     val sentence = "数時間のうちにまた歯が痛くなってきた。"
     val words = parseIntoWords(sentence)
 
-    assert(words(1).word.equals("の"))
-    assert(words(1).partOfSpeech.equals(Pos.Postposition))
-    assert(words(2).word.equals("うちに"))
-    assert(words(2).partOfSpeech.equals(Pos.Adverb))
+    words(1).word should be ("の")
+    words(1).partOfSpeech should be (Pos.Postposition)
+    words(2).word should be ("うちに")
+    words(2).partOfSpeech should be (Pos.Adverb)
   }
 
   it should "properly parse Meishi hijiritsu jodoushigokan" in {
     val sentence = "あの人は化け物のような力持ちだ。"
     val words = parseIntoWords(sentence)
 
-    assert(words(4).word.equals("の"))
-    assert(words(4).partOfSpeech.equals(Pos.Postposition))
-    assert(words(5).word.equals("ような"))
-    assert(words(5).partOfSpeech.equals(Pos.Verb))
+    words(4).word should be ("の")
+    words(4).partOfSpeech should be (Pos.Postposition)
+    words(5).word should be ("ような")
+    words(5).partOfSpeech should be (Pos.Verb)
 
     val nextSentence = "雪のように白い。"
     val nextWords = parseIntoWords(nextSentence)
 
-    assert(nextWords(1).word.equals("の"))
-    assert(nextWords(1).partOfSpeech.equals(Pos.Postposition))
-    assert(nextWords(2).word.equals("ように"))
-    assert(nextWords(2).partOfSpeech.equals(Pos.Adverb))
+    nextWords(1).word should be ("の")
+    nextWords(1).partOfSpeech should be (Pos.Postposition)
+    nextWords(2).word should be ("ように")
+    nextWords(2).partOfSpeech should be (Pos.Adverb)
   }
 
   it should "properly parse Meishi hijiritsu keiyoudoushigokan" in {
     val firstSentence = "本は友人みたいなものである。"
     val firstWords = parseIntoWords(firstSentence)
 
-    assert(firstWords(3).word.equals("みたいな"))
-    assert(firstWords(3).partOfSpeech.equals(Pos.Adjective))
+    firstWords(3).word should be ("みたいな")
+    firstWords(3).partOfSpeech should be (Pos.Adjective)
 
-    val secondSentence = "彼女は疲れているみたいだ。"
-    val secondWords = parseIntoWords(secondSentence)
+    val secondWords = new Parse(Seq(
+      createMockToken("みたい", "名詞,非自立,形容動詞語幹,*,*,*,みたい,ミタイ,ミタイ"),
+      createMockToken("の", "助詞,連体化,*,*,*,*,の,ノ,ノ")
+    )).words
 
-    assert(secondWords(3).word.equals("みたい"))
-    assert(secondWords(3).partOfSpeech.equals(Pos.Adjective))
-    assert(secondWords(4).word.equals("だ"))
-    assert(secondWords(4).partOfSpeech.equals(Pos.Verb))
+    secondWords.size should be (1)
+    secondWords.head.word should be ("みたいの")
+    secondWords.head.partOfSpeech should be (Pos.Adjective)
+    secondWords.head.reading should be(Some("ミタイノ"))
 
+    val thirdSentence = "彼女は疲れているみたいだ。"
+    val thirdWords = parseIntoWords(thirdSentence)
 
+    thirdWords(3).word should be ("みたい")
+    thirdWords(3).partOfSpeech should be (Pos.Adjective)
+    thirdWords(4).word should be ("だ")
+    thirdWords(4).partOfSpeech should be (Pos.Verb)
+  }
+
+  it should "properly parse Meishi tokushu jodoushigokan" in {
+    val words = new Parse(Seq(
+      createMockToken("行く","動詞,自立,*,*,五段・カ行促音便,基本形,行く,イク,イク"),
+      createMockToken("そう","名詞,特殊,助動詞語幹,*,*,*,そう,ソウ,ソー"),
+      createMockToken("だ","助動詞,*,*,*,特殊・ダ,基本形,だ,ダ,ダ")
+    )).words
+
+    words.head.word should be ("行く")
+    words(1).word should be ("そう")
+    words(2).word should be ("だ")
+    words.forall(_.partOfSpeech.equals(Pos.Verb)) should be (true)
+  }
+
+  it should "properly parse Meishi setsubi" in {
+    val sentence = "すばらしい天気は私達の楽しさを増した。"
+    val words = parseIntoWords(sentence)
+
+    words(5).word should be ("楽しさ")
+    words(5).partOfSpeech should be (Pos.Noun)
+  }
+
+  it should "properly parse Meishi setsuzokushiteki" in {
+    val words = new Parse(Seq(
+      createMockToken("日本", "名詞,固有名詞,地域,国,*,*,日本,ニッポン,ニッポン"),
+      createMockToken("対", "名詞,接続詞的,*,*,*,*,対,タイ,タイ"),
+      createMockToken("アメリカ", "名詞,固有名詞,地域,国,*,*,アメリカ,アメリカ,アメリカ")
+    )).words
+
+    words.head.word should be ("日本")
+    words.head.partOfSpeech should be (Pos.ProperNoun)
+    words(1).word should be ("対")
+    words(1).partOfSpeech should be (Pos.Conjunction)
+    words(2).word should be ("アメリカ")
+    words(2).partOfSpeech should be (Pos.ProperNoun)
+  }
+
+  it should "properly parse Meishi doushihijiritsuteki" in {
+    val sentence = "真っ直ぐ前方を見てごらん。"
+    val words = parseIntoWords(sentence)
+    words(3).word should be ("見て")
+    words(3).partOfSpeech should be (Pos.Verb)
+    words(4).word should be ("ごらん")
+    words(4).partOfSpeech should be (Pos.Verb)
   }
 }

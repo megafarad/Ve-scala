@@ -105,7 +105,7 @@ class Parse(tokenSeq: Seq[Token]) {
                 case SETSUBI =>
                   if (currentPOSArray(POS3).equals(JINMEI)) Some(TokenParseActions(pos = Pos.Suffix)) else
                     if (currentPOSArray(POS3).equals(TOKUSHU) && currentToken.getAllFeaturesArray()(BASIC).equals(SA))
-                      Some(TokenParseActions(pos = Pos.Noun, updatePos = true)) else
+                      Some(TokenParseActions(pos = Pos.Noun, updatePos = true, attachToPrevious = true)) else
                       Some(TokenParseActions(pos = Pos.Noun, alsoAttachToLemma = true, attachToPrevious = true))
 
                 case SETSUZOKUSHITEKI => Some(TokenParseActions(pos = Pos.Conjunction))
