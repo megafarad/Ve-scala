@@ -84,7 +84,7 @@ class Parse(tokenSeq: Seq[Token]) {
                           Some(TokenParseActions(pos = Pos.Verb, grammar = Grammar.Auxiliary,
                             eatNext = following.getAllFeaturesArray()(CFORM).equals(TAIGENSETSUZOKU))) else
                           if (followingPOSArray(POS1).equals(JOSHI) &&
-                          followingPOSArray(POS3).equals(FUKUSHIKA))
+                          followingPOSArray(POS2).equals(FUKUSHIKA))
                             Some(TokenParseActions(pos = Pos.Adverb, eatNext = true))
                           else Some(TokenParseActions(pos = Pos.Noun))
 

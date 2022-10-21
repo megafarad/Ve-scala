@@ -106,4 +106,40 @@ class ParseTest extends AnyFlatSpec {
     assert(words(2).word.equals("うちに"))
     assert(words(2).partOfSpeech.equals(Pos.Adverb))
   }
+
+  it should "properly parse Meishi hijiritsu jodoushigokan" in {
+    val sentence = "あの人は化け物のような力持ちだ。"
+    val words = parseIntoWords(sentence)
+
+    assert(words(4).word.equals("の"))
+    assert(words(4).partOfSpeech.equals(Pos.Postposition))
+    assert(words(5).word.equals("ような"))
+    assert(words(5).partOfSpeech.equals(Pos.Verb))
+
+    val nextSentence = "雪のように白い。"
+    val nextWords = parseIntoWords(nextSentence)
+
+    assert(nextWords(1).word.equals("の"))
+    assert(nextWords(1).partOfSpeech.equals(Pos.Postposition))
+    assert(nextWords(2).word.equals("ように"))
+    assert(nextWords(2).partOfSpeech.equals(Pos.Adverb))
+  }
+
+  it should "properly parse Meishi hijiritsu keiyoudoushigokan" in {
+    val firstSentence = "本は友人みたいなものである。"
+    val firstWords = parseIntoWords(firstSentence)
+
+    assert(firstWords(3).word.equals("みたいな"))
+    assert(firstWords(3).partOfSpeech.equals(Pos.Adjective))
+
+    val secondSentence = "彼女は疲れているみたいだ。"
+    val secondWords = parseIntoWords(secondSentence)
+
+    assert(secondWords(3).word.equals("みたい"))
+    assert(secondWords(3).partOfSpeech.equals(Pos.Adjective))
+    assert(secondWords(4).word.equals("だ"))
+    assert(secondWords(4).partOfSpeech.equals(Pos.Verb))
+
+
+  }
 }
