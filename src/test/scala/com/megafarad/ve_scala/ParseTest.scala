@@ -8,6 +8,10 @@ class ParseTest extends AnyFlatSpec {
   private def parseIntoWords(sentence: String) = {
     val tokensList = new Tokenizer().tokenize(sentence)
 
+    tokensList forEach  {
+      token => println(token.getSurface + " -> " + token.getAllFeatures)
+    }
+
     val parser = new Parse(tokensList.asScala.toSeq)
     val words = parser.words
     words
@@ -77,4 +81,29 @@ class ParseTest extends AnyFlatSpec {
     assert(words.find(_.word.equals("悪化した")).exists(_.partOfSpeech == Pos.Verb))
   }
 
+  it should "properly parse Keiyoudoushigokan" in {
+    val sentence = "貴職らにとっては重要なことです。"
+    val words = parseIntoWords(sentence)
+
+    assert(words.exists(_.word.equals("重要な")))
+    assert(words.find(_.word.equals("重要な")).exists(_.partOfSpeech.equals(Pos.Adjective)))
+  }
+
+  it should "properly parse Naikeiyoushigokan" in {
+    val sentence = "彼女は昨夜とんでもない時間に電話してきた。"
+    val words = parseIntoWords(sentence)
+
+    assert(words.exists(_.word.equals("とんでもない")))
+    assert(words.find(_.word.equals("とんでもない")).exists(_.partOfSpeech.equals(Pos.Adjective)))
+  }
+
+  it should "properly parse Meishi hijiritsu fukushikanou" in {
+    val sentence = "数時間のうちにまた歯が痛くなってきた。"
+    val words = parseIntoWords(sentence)
+
+    assert(words(1).word.equals("の"))
+    assert(words(1).partOfSpeech.equals(Pos.Postposition))
+    assert(words(2).word.equals("うちに"))
+    assert(words(2).partOfSpeech.equals(Pos.Adverb))
+  }
 }

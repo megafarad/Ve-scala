@@ -56,7 +56,7 @@ class Parse(tokenSeq: Seq[Token]) {
                     following.getAllFeaturesArray()(CTYPE) match {
                       case SAHEN_SURU => Some(TokenParseActions(pos = Pos.Verb, eatNext = true))
                       case TOKUSHU_DA =>
-                        if (followingPOSArray(POS2).equals(TAIGENSETSUZOKU)) {
+                        if (following.getAllFeaturesArray()(CFORM).equals(TAIGENSETSUZOKU)) {
                           Some(TokenParseActions(pos = Pos.Adjective, eatNext = true, eatLemma = false))
                         } else {
                           Some(TokenParseActions(pos = Pos.Adjective))
@@ -76,7 +76,7 @@ class Parse(tokenSeq: Seq[Token]) {
                     currentPOSArray(POS3) match {
                       case FUKUSHIKANOU =>
                         if (followingPOSArray(POS1).equals(JOSHI) &&
-                          following.getSurface.equals(NI)) Some(TokenParseActions(pos = Pos.Adverb)) else
+                          following.getSurface.equals(NI)) Some(TokenParseActions(pos = Pos.Adverb, eatNext = true)) else
                           Some(TokenParseActions(pos = Pos.Noun))
 
                       case JODOUSHIGOKAN =>
@@ -127,8 +127,8 @@ class Parse(tokenSeq: Seq[Token]) {
             else if (currentToken.getAllFeaturesArray()(CTYPE).equals(FUHENKAGATA) &&
               currentToken.getAllFeaturesArray()(BASIC).equals(NN))
               Some(TokenParseActions(pos = defaultPos, attachToPrevious = true))
-            else if (currentToken.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DA) ||
-              currentToken.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DESU) && !currentToken.getSurface.equals(NA))
+            else if ((currentToken.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DA) ||
+              currentToken.getAllFeaturesArray()(CTYPE).equals(TOKUSHU_DESU)) && !currentToken.getSurface.equals(NA))
               Some(TokenParseActions(pos = Pos.Verb))
             else Some(TokenParseActions(pos = defaultPos))
 
