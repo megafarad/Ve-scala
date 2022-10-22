@@ -207,4 +207,110 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
     words(4).word should be ("ごらん")
     words(4).partOfSpeech should be (Pos.Verb)
   }
+
+  it should "properly parse Settoushi" in {
+    val words = new Parse(Seq(
+      createMockToken("お", "接頭詞,名詞接続,*,*,*,*,お,オ,オ"),
+      createMockToken("座り", "名詞,一般,*,*,*,*,座り,スワリ,スワリ")
+    )).words
+    words.head.word should be ("お")
+    words.head.partOfSpeech should be (Pos.Prefix)
+    words(1).word should be ("座り")
+    words(1).partOfSpeech should be (Pos.Noun)
+  }
+
+  it should "properly parse Kigou" in {
+    val sentence = "真っ直ぐ前方を見てごらん。"
+    val words = parseIntoWords(sentence)
+
+    words(5).word should be ("。")
+    words(5).partOfSpeech should be (Pos.Symbol)
+  }
+
+  it should "properly parse Firaa" in {
+    val words = new Parse(Seq(
+      createMockToken("えと", "フィラー,*,*,*,*,*,えと,エト,エト")
+    )).words
+
+    words.head.word should be ("えと")
+    words.head.partOfSpeech should be (Pos.Interjection)
+  }
+
+  it should "properly parse Sonota" in {
+    val words = new Parse(Seq(
+      createMockToken("だ", "助動詞,*,*,*,特殊・タ,基本形,だ,ダ,ダ"),
+      createMockToken("ァ", "その他,間投,*,*,*,*,ァ,ァ,ア")
+    )).words
+
+    words.head.word should be ("だ")
+    words.head.partOfSpeech should be (Pos.Postposition)
+    words(1).word should be ("ァ")
+    words(1).partOfSpeech should be (Pos.Other)
+  }
+
+  it should "properly parse Kandoushi" in {
+    val words = new Parse(Seq(
+      createMockToken("おはよう", "感動詞,*,*,*,*,*,おはよう,オハヨウ,オハヨー")
+    )).words
+
+    words.head.word should be ("おはよう")
+    words.head.partOfSpeech should be (Pos.Interjection)
+  }
+
+  it should "properly parse Rentaishi" in {
+    val words = new Parse(Seq(
+      createMockToken("この", "連体詞,*,*,*,*,*,この,コノ,コノ")
+    )).words
+
+    words.head.word should be ("この")
+    words.head.partOfSpeech should be (Pos.Determiner)
+  }
+
+  it should "properly parse Setsuzokushi" in {
+    val words = new Parse(Seq(
+      createMockToken("そして", "接続詞,*,*,*,*,*,そして,ソシテ,ソシテ")
+    )).words
+
+    words.head.word should be ("そして")
+    words.head.partOfSpeech should be (Pos.Conjunction)
+  }
+
+  it should "properly parse Fukushi" in {
+    val words = new Parse(Seq(
+      createMockToken("多分", "副詞,一般,*,*,*,*,多分,タブン,タブン")
+    )).words
+
+    words.head.word should be ("多分")
+    words.head.partOfSpeech should be (Pos.Adverb)
+  }
+
+  it should "properly parse Doushi" in {
+    val firstWords = new Parse(Seq(
+      createMockToken("行く", "動詞,自立,*,*,五段・カ行促音便,基本形,行く,イク,イク")
+    )).words
+
+    firstWords.head.word should be ("行く")
+    firstWords.head.partOfSpeech should be (Pos.Verb)
+
+    val secondWords = new Parse(Seq(
+      createMockToken("行か", "動詞,自立,*,*,五段・カ行促音便,未然形,行く,イカ,イカ"),
+      createMockToken("ない", "助動詞,*,*,*,特殊・ナイ,基本形,ない,ナイ,ナイ")
+    )).words
+
+    secondWords.size should be (1)
+    secondWords.head.word should be ("行かない")
+    secondWords.head.partOfSpeech should be (Pos.Verb)
+
+    val thirdWords = new Parse(Seq(
+      createMockToken("行っ", "動詞,自立,*,*,五段・カ行促音便,連用タ接続,行く,イッ,イッ"),
+      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ"),
+      createMockToken("き", "動詞,非自立,*,*,カ変・クル,連用形,くる,キ,キ"),
+      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ")
+    )).words
+
+    thirdWords.size should be (1)
+    thirdWords.head.word should be ("行ってきて")
+    thirdWords.head.partOfSpeech should be (Pos.Verb)
+    thirdWords.head.reading should contain ("イッテキテ")
+  }
 }
