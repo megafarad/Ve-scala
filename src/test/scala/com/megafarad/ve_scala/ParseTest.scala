@@ -313,4 +313,77 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
     thirdWords.head.partOfSpeech should be (Pos.Verb)
     thirdWords.head.reading should contain ("イッテキテ")
   }
+
+  it should "properly parse Doushi setsubi" in {
+    val firstWords = new Parse(Seq(
+      createMockToken("行か", "動詞,自立,*,*,五段・カ行促音便,未然形,行く,イカ,イカ"),
+      createMockToken("れる", "動詞,接尾,*,*,一段,基本形,れる,レル,レル")
+    )).words
+
+    firstWords.size should be (1)
+    firstWords.head.word should be ("行かれる")
+    firstWords.head.partOfSpeech should be (Pos.Verb)
+
+    val secondWords = new Parse(Seq(
+      createMockToken("食べ", "動詞,自立,*,*,一段,未然形,食べる,タベ,タベ"),
+      createMockToken("させ", "動詞,接尾,*,*,一段,未然形,させる,サセ,サセ"),
+      createMockToken("られ", "動詞,接尾,*,*,一段,連用形,られる,ラレ,ラレ"),
+      createMockToken("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
+    )).words
+
+    secondWords.size should be(1)
+    secondWords.head.lemma should contain ("食べる")
+    secondWords.head.word should be ("食べさせられた")
+    secondWords.head.partOfSpeech should be (Pos.Verb)
+  }
+
+  it should "properly parse Doushi + jodoushi" in {
+    val firstWords = new Parse(Seq(
+      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ"),
+      createMockToken("まし", "助動詞,*,*,*,特殊・マス,連用形,ます,マシ,マシ"),
+      createMockToken("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
+    )).words
+
+    firstWords.size should be (1)
+    firstWords.head.word should be ("食べました")
+    firstWords.head.partOfSpeech should be (Pos.Verb)
+
+    val secondWords = new Parse(Seq(
+      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
+      createMockToken("ませ", "助動詞,*,*,*,特殊・マス,未然形,ます,マセ,マセ,,"),
+      createMockToken("ん", "助動詞,*,*,*,不変化型,基本形,ん,ン,ン,,")
+    )).words
+
+    secondWords.size should be (1)
+    secondWords.head.word should be ("食べません")
+    secondWords.head.partOfSpeech should be (Pos.Verb)
+
+    val thirdWords = new Parse(Seq(
+      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
+      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ,,"),
+      createMockToken("いる", "動詞,非自立,*,*,一段,基本形,いる,イル,イル,,")
+    )).words
+
+    thirdWords.size should be (1)
+    thirdWords.head.word should be ("食べている")
+    thirdWords.head.partOfSpeech should be (Pos.Verb)
+
+    val fourthWords = new Parse(Seq(
+      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
+      createMockToken("てる", "動詞,非自立,*,*,一段,基本形,てる,テル,テル,,")
+    )).words
+
+    fourthWords.size should be (1)
+    fourthWords.head.word should be ("食べてる")
+    fourthWords.head.partOfSpeech should be (Pos.Verb)
+
+    val fifthWords = new Parse(Seq(
+      createMockToken("食べ", "動詞,自立,*,*,一段,未然形,食べる,タベ,タベ,たべ/食/食べ,"),
+      createMockToken("ず", "助動詞,*,*,*,特殊・ヌ,連用ニ接続,ぬ,ズ,ズ,,")
+    )).words
+
+    fifthWords.size should be (1)
+    fifthWords.head.word should be ("食べず")
+    fifthWords.head.partOfSpeech should be (Pos.Verb)
+  }
 }
