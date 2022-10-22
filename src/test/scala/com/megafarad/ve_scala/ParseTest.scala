@@ -152,7 +152,7 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
     secondWords.size should be (1)
     secondWords.head.word should be ("みたいの")
     secondWords.head.partOfSpeech should be (Pos.Adjective)
-    secondWords.head.reading should be(Some("ミタイノ"))
+    secondWords.head.reading should be("ミタイノ")
 
     val thirdSentence = "彼女は疲れているみたいだ。"
     val thirdWords = parseIntoWords(thirdSentence)
@@ -311,7 +311,7 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
     thirdWords.size should be (1)
     thirdWords.head.word should be ("行ってきて")
     thirdWords.head.partOfSpeech should be (Pos.Verb)
-    thirdWords.head.reading should contain ("イッテキテ")
+    thirdWords.head.reading should be ("イッテキテ")
   }
 
   it should "properly parse Doushi setsubi" in {
@@ -332,7 +332,7 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
     )).words
 
     secondWords.size should be(1)
-    secondWords.head.lemma should contain ("食べる")
+    secondWords.head.lemma should be ("食べる")
     secondWords.head.word should be ("食べさせられた")
     secondWords.head.partOfSpeech should be (Pos.Verb)
   }

@@ -171,10 +171,10 @@ class Parse(tokenSeq: Seq[Token]) {
               case _ => Nil
             }
           } else {
-            val word = Word(reading = Option(currentToken.getReading),
-              transcription = Option(getFeatureSafely(currentToken, PRONUNCIATION)),
+            val word = Word(reading = currentToken.getReading,
+              transcription = getFeatureSafely(currentToken, PRONUNCIATION),
               grammar = parsedActions.grammar,
-              lemma = Option(currentToken.getAllFeaturesArray()(BASIC)),
+              lemma = currentToken.getAllFeaturesArray()(BASIC),
               partOfSpeech = parsedActions.pos,
               word = currentToken.getSurface,
               tokens = Seq(currentToken))
