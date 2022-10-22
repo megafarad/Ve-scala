@@ -386,4 +386,47 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
     fifthWords.head.word should be ("食べず")
     fifthWords.head.partOfSpeech should be (Pos.Verb)
   }
+
+  it should "properly parse Keiyoushi" in {
+    val firstWords = new Parse(Seq(
+      createMockToken("寒い", "形容詞,自立,*,*,形容詞・アウオ段,基本形,寒い,サムイ,サムイ")
+    )).words
+
+    firstWords.head.word should be ("寒い")
+    firstWords.head.partOfSpeech should be (Pos.Adjective)
+
+    val secondWords = new Parse(Seq(
+      createMockToken("寒く", "形容詞,自立,*,*,形容詞・アウオ段,連用テ接続,寒い,サムク,サムク"),
+      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ")
+    )).words
+
+    secondWords.size should be (1)
+    secondWords.head.word should be ("寒くて")
+    secondWords.head.partOfSpeech should be (Pos.Adjective)
+
+    val thirdWords = new Parse(Seq(
+      createMockToken("寒かっ", "形容詞,自立,*,*,形容詞・アウオ段,連用タ接続,寒い,サムカッ,サムカッ"),
+      createMockToken("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
+    )).words
+
+    thirdWords.size should be (1)
+    thirdWords.head.word should be ("寒かった")
+    thirdWords.head.partOfSpeech should be (Pos.Adjective)
+
+    val fourthWords = new Parse(Seq(
+      createMockToken("寒けれ", "形容詞,自立,*,*,形容詞・アウオ段,仮定形,寒い,サムケレ,サムケレ"),
+      createMockToken("ば", "助詞,接続助詞,*,*,*,*,ば,バ,バ")
+    )).words
+
+    fourthWords.size should be (1)
+    fourthWords.head.word should be ("寒ければ")
+    fourthWords.head.partOfSpeech should be (Pos.Adjective)
+
+    val fifthWords = new Parse(Seq(
+      createMockToken("寒けりゃ", "形容詞,自立,*,*,形容詞・アウオ段,仮定縮約１,寒い,サムケリャ,サムケリャ")
+    )).words
+
+    fifthWords.head.word should be ("寒けりゃ")
+    fifthWords.head.partOfSpeech should be (Pos.Adjective)
+  }
 }
