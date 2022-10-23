@@ -20,7 +20,11 @@ object JapaneseTokenParser {
     if (allFeaturesArray.length >= feature + 1) allFeaturesArray(feature) else "*"
   }
 
-  def apply(kuromojiToken: KuromojiToken): JapaneseToken = {
+  def getPosArray(array: Array[String]): Array[String] = {
+    util.Arrays.copyOfRange(array, POS1, POS4 + 1)
+  }
+
+  def parse(kuromojiToken: KuromojiToken): JapaneseToken = {
     val posArray = getPosArray(kuromojiToken.getAllFeaturesArray)
     JapaneseToken(literal = kuromojiToken.getSurface,
       pos = posArray(POS1),
@@ -34,11 +38,7 @@ object JapaneseTokenParser {
       hatsuon = getFeatureSafely(kuromojiToken.getAllFeaturesArray, PRONUNCIATION))
   }
 
-  def getPosArray(array: Array[String]): Array[String] = {
-    util.Arrays.copyOfRange(array, POS1, POS4 + 1)
-  }
-
-  def apply(surface: String, rawFeaturesArray: String): JapaneseToken = {
+  def parse(surface: String, rawFeaturesArray: String): JapaneseToken = {
     val allFeaturesArray = rawFeaturesArray.split(",")
     val posArray = getPosArray(allFeaturesArray)
     JapaneseToken(literal = surface,
