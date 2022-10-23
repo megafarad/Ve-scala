@@ -10,7 +10,7 @@ class KuromojiIpadic(tokens: Seq[JapaneseToken]) extends Parse {
   private val tokenSeq: Seq[JapaneseToken] = tokens
 
   def this(text: String) = {
-    this(new Tokenizer().tokenize(text).asScala.toSeq.map(JapaneseTokenParser.apply))
+    this(new Tokenizer().tokenize(text).asScala.toSeq.map(JapaneseTokenParser.parse))
   }
 
   if (tokenSeq.isEmpty) throw new IllegalArgumentException("Cannot parse an empty array of tokens")
