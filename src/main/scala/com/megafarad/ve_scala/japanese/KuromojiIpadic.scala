@@ -1,9 +1,10 @@
-package com.megafarad.ve_scala
+package com.megafarad.ve_scala.japanese
 
 import com.atilika.kuromoji.ipadic.Tokenizer
-import scala.jdk.CollectionConverters._
+import com.megafarad.ve_scala.{Grammar, Parse, Pos}
 
 import scala.annotation.unused
+import scala.jdk.CollectionConverters._
 
 class KuromojiIpadic(tokens: Seq[JapaneseToken]) extends Parse {
 

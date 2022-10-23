@@ -1,7 +1,7 @@
-package com.megafarad.ve_scala
+package com.megafarad.ve_scala.japanese
 
 import com.atilika.kuromoji.ipadic.Tokenizer
-
+import com.megafarad.ve_scala.Pos
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

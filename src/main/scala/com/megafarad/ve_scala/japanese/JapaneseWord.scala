@@ -1,5 +1,6 @@
-package com.megafarad.ve_scala
+package com.megafarad.ve_scala.japanese
 
+import com.megafarad.ve_scala.{Grammar, Pos, Word}
 
 case class JapaneseWord(reading: String, transcription: String, grammar: Grammar.Value, lemma: String,
                         partOfSpeech: Pos.Value, word: String, tokens: Seq[JapaneseToken]) extends Word {

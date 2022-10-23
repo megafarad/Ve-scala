@@ -1,6 +1,7 @@
-package com.megafarad.ve_scala
+package com.megafarad.ve_scala.japanese
 
 import com.atilika.kuromoji.ipadic.{Token => KuromojiToken}
+
 import java.util
 
 object JapaneseTokenParser {
