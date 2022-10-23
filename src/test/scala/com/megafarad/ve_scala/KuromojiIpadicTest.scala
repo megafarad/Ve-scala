@@ -4,11 +4,8 @@ import com.atilika.kuromoji.ipadic.Tokenizer
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatestplus.mockito.MockitoSugar
 
-import scala.jdk.CollectionConverters._
-
-class KuromojiIpadicTest extends AnyFlatSpec with MockitoSugar with Matchers{
+class KuromojiIpadicTest extends AnyFlatSpec with Matchers {
   private def parseIntoWords(sentence: String): Seq[JapaneseWord] = {
     val tokensList = new Tokenizer().tokenize(sentence)
 
