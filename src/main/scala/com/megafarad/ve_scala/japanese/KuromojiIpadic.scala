@@ -8,13 +8,11 @@ import scala.jdk.CollectionConverters._
 
 class KuromojiIpadic(tokens: Seq[JapaneseToken]) extends Parse {
 
-  private val tokenSeq: Seq[JapaneseToken] = tokens
-
   def this(text: String) = {
     this(new Tokenizer().tokenize(text).asScala.toSeq.map(JapaneseTokenParser.parse))
   }
 
-  if (tokenSeq.isEmpty) throw new IllegalArgumentException("Cannot parse an empty array of tokens")
+  if (tokens.isEmpty) throw new IllegalArgumentException("Cannot parse an empty array of tokens")
 
   private val NO_DATA = "*"
 
@@ -25,7 +23,7 @@ class KuromojiIpadic(tokens: Seq[JapaneseToken]) extends Parse {
    * @return parsed [[JapaneseWord]]s.
    */
   def words: Seq[JapaneseWord] = {
-    val (words, _, _)  = tokenSeq.zipWithIndex.foldLeft[(Seq[JapaneseWord], Option[JapaneseToken], Option[TokenParseActions])]((Nil, None, None)) {
+    val (words, _, _)  = tokens.zipWithIndex.foldLeft[(Seq[JapaneseWord], Option[JapaneseToken], Option[TokenParseActions])]((Nil, None, None)) {
       case ((parsedWords: Seq[JapaneseWord], lastToken: Option[JapaneseToken], lastActions: Option[TokenParseActions]), (currentToken: JapaneseToken, index: Int) ) =>
         val finalSlot = parsedWords.size - 1
         if (currentToken.pos.equals(NO_DATA))
@@ -42,10 +40,10 @@ class KuromojiIpadic(tokens: Seq[JapaneseToken]) extends Parse {
                 case DAIMEISHI =>
                   Some(TokenParseActions(pos = Pos.Pronoun))
                 case FUKUSHIKANOU | SAHENSETSUZOKU | KEIYOUDOUSHIGOKAN | NAIKEIYOUSHIGOKAN =>
-                  if (index == tokenSeq.length - 1) {
+                  if (index == tokens.length - 1) {
                     Some(TokenParseActions(pos = Pos.Noun))
                   } else {
-                    val following = tokenSeq(index + 1)
+                    val following = tokens(index + 1)
                     following.inflectionType match {
                       case SAHEN_SURU => Some(TokenParseActions(pos = Pos.Verb, eatNext = true))
                       case TOKUSHU_DA =>
@@ -61,9 +59,9 @@ class KuromojiIpadic(tokens: Seq[JapaneseToken]) extends Parse {
                     }
                   }
                 case HIJIRITSU | TOKUSHU =>
-                  if (currentToken.pos3.equals(NO_DATA) || index == tokenSeq.length - 1)
+                  if (currentToken.pos3.equals(NO_DATA) || index == tokens.length - 1)
                     Some(TokenParseActions(pos = Pos.Noun)) else {
-                    val following = tokenSeq(index + 1)
+                    val following = tokens(index + 1)
                     currentToken.pos3 match {
                       case FUKUSHIKANOU =>
                         if (following.pos.equals(JOSHI) &&
@@ -169,8 +167,8 @@ class KuromojiIpadic(tokens: Seq[JapaneseToken]) extends Parse {
               word = currentToken.literal,
               tokens = Seq(currentToken))
             val withEatNext: JapaneseWord = if (parsedActions.eatNext) {
-              if (index == tokenSeq.length - 1) throw new IllegalStateException("There's a path that allows array overshooting.")
-              val following: JapaneseToken = tokenSeq(index + 1)
+              if (index == tokens.length - 1) throw new IllegalStateException("There's a path that allows array overshooting.")
+              val following: JapaneseToken = tokens(index + 1)
               val withMost: JapaneseWord = word.copy(tokens = word.tokens :+ following)
                 .withAppendToWord(following.literal)
                 .withAppendToReading(following.reading)

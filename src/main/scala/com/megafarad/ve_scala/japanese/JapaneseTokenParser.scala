@@ -36,7 +36,8 @@ object JapaneseTokenParser {
       inflectionForm = kuromojiToken.getAllFeaturesArray()(CFORM),
       lemma = kuromojiToken.getAllFeaturesArray()(BASIC),
       reading = getFeatureSafely(kuromojiToken.getAllFeaturesArray, READING),
-      hatsuon = getFeatureSafely(kuromojiToken.getAllFeaturesArray, PRONUNCIATION))
+      hatsuon = getFeatureSafely(kuromojiToken.getAllFeaturesArray, PRONUNCIATION),
+      sentenceEnding = kuromojiToken.getSurface.equals("。"))
   }
 
   def parse(surface: String, rawFeaturesArray: String): JapaneseToken = {
@@ -51,7 +52,8 @@ object JapaneseTokenParser {
       inflectionForm = allFeaturesArray(CFORM),
       lemma = allFeaturesArray(BASIC),
       reading = getFeatureSafely(allFeaturesArray, READING),
-      hatsuon = getFeatureSafely(allFeaturesArray, PRONUNCIATION))
+      hatsuon = getFeatureSafely(allFeaturesArray, PRONUNCIATION),
+      sentenceEnding = surface.equals("。"))
   }
 
 }
