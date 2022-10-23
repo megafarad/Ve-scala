@@ -1,34 +1,24 @@
 package com.megafarad.ve_scala
 
-import com.atilika.kuromoji.ipadic.{Token, Tokenizer}
-import org.mockito.Mockito
+import com.atilika.kuromoji.ipadic.Tokenizer
+
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
 import scala.jdk.CollectionConverters._
 
-class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
-  private def parseIntoWords(sentence: String) = {
+class KuromojiIpadicTest extends AnyFlatSpec with MockitoSugar with Matchers{
+  private def parseIntoWords(sentence: String): Seq[JapaneseWord] = {
     val tokensList = new Tokenizer().tokenize(sentence)
 
     tokensList forEach  {
       token => println(token.getSurface + " -> " + token.getAllFeatures)
     }
 
-    val parser = new Parse(tokensList.asScala.toSeq)
+    val parser = new KuromojiIpadic(sentence)
     val words = parser.words
     words
-  }
-
-  private def createMockToken(surface: String, rawFeaturesArray: String): Token = {
-    val mockToken = mock[Token]
-    val featuresArray = rawFeaturesArray.split(",")
-    Mockito.when(mockToken.getAllFeaturesArray).thenReturn(featuresArray)
-    Mockito.when(mockToken.getSurface).thenReturn(surface)
-    Mockito.when(mockToken.getReading).thenReturn(featuresArray(7))
-    mockToken
-
   }
 
   behavior of "Parse"
@@ -144,9 +134,9 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
     firstWords(3).word should be ("みたいな")
     firstWords(3).partOfSpeech should be (Pos.Adjective)
 
-    val secondWords = new Parse(Seq(
-      createMockToken("みたい", "名詞,非自立,形容動詞語幹,*,*,*,みたい,ミタイ,ミタイ"),
-      createMockToken("の", "助詞,連体化,*,*,*,*,の,ノ,ノ")
+    val secondWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("みたい", "名詞,非自立,形容動詞語幹,*,*,*,みたい,ミタイ,ミタイ"),
+      JapaneseTokenParser("の", "助詞,連体化,*,*,*,*,の,ノ,ノ")
     )).words
 
     secondWords.size should be (1)
@@ -164,10 +154,10 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Meishi tokushu jodoushigokan" in {
-    val words = new Parse(Seq(
-      createMockToken("行く","動詞,自立,*,*,五段・カ行促音便,基本形,行く,イク,イク"),
-      createMockToken("そう","名詞,特殊,助動詞語幹,*,*,*,そう,ソウ,ソー"),
-      createMockToken("だ","助動詞,*,*,*,特殊・ダ,基本形,だ,ダ,ダ")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("行く","動詞,自立,*,*,五段・カ行促音便,基本形,行く,イク,イク"),
+      JapaneseTokenParser("そう","名詞,特殊,助動詞語幹,*,*,*,そう,ソウ,ソー"),
+      JapaneseTokenParser("だ","助動詞,*,*,*,特殊・ダ,基本形,だ,ダ,ダ")
     )).words
 
     words.head.word should be ("行く")
@@ -185,10 +175,10 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Meishi setsuzokushiteki" in {
-    val words = new Parse(Seq(
-      createMockToken("日本", "名詞,固有名詞,地域,国,*,*,日本,ニッポン,ニッポン"),
-      createMockToken("対", "名詞,接続詞的,*,*,*,*,対,タイ,タイ"),
-      createMockToken("アメリカ", "名詞,固有名詞,地域,国,*,*,アメリカ,アメリカ,アメリカ")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("日本", "名詞,固有名詞,地域,国,*,*,日本,ニッポン,ニッポン"),
+      JapaneseTokenParser("対", "名詞,接続詞的,*,*,*,*,対,タイ,タイ"),
+      JapaneseTokenParser("アメリカ", "名詞,固有名詞,地域,国,*,*,アメリカ,アメリカ,アメリカ")
     )).words
 
     words.head.word should be ("日本")
@@ -209,9 +199,9 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Settoushi" in {
-    val words = new Parse(Seq(
-      createMockToken("お", "接頭詞,名詞接続,*,*,*,*,お,オ,オ"),
-      createMockToken("座り", "名詞,一般,*,*,*,*,座り,スワリ,スワリ")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("お", "接頭詞,名詞接続,*,*,*,*,お,オ,オ"),
+      JapaneseTokenParser("座り", "名詞,一般,*,*,*,*,座り,スワリ,スワリ")
     )).words
     words.head.word should be ("お")
     words.head.partOfSpeech should be (Pos.Prefix)
@@ -228,8 +218,8 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Firaa" in {
-    val words = new Parse(Seq(
-      createMockToken("えと", "フィラー,*,*,*,*,*,えと,エト,エト")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("えと", "フィラー,*,*,*,*,*,えと,エト,エト")
     )).words
 
     words.head.word should be ("えと")
@@ -237,9 +227,9 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Sonota" in {
-    val words = new Parse(Seq(
-      createMockToken("だ", "助動詞,*,*,*,特殊・タ,基本形,だ,ダ,ダ"),
-      createMockToken("ァ", "その他,間投,*,*,*,*,ァ,ァ,ア")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("だ", "助動詞,*,*,*,特殊・タ,基本形,だ,ダ,ダ"),
+      JapaneseTokenParser("ァ", "その他,間投,*,*,*,*,ァ,ァ,ア")
     )).words
 
     words.head.word should be ("だ")
@@ -249,8 +239,8 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Kandoushi" in {
-    val words = new Parse(Seq(
-      createMockToken("おはよう", "感動詞,*,*,*,*,*,おはよう,オハヨウ,オハヨー")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("おはよう", "感動詞,*,*,*,*,*,おはよう,オハヨウ,オハヨー")
     )).words
 
     words.head.word should be ("おはよう")
@@ -258,8 +248,8 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Rentaishi" in {
-    val words = new Parse(Seq(
-      createMockToken("この", "連体詞,*,*,*,*,*,この,コノ,コノ")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("この", "連体詞,*,*,*,*,*,この,コノ,コノ")
     )).words
 
     words.head.word should be ("この")
@@ -267,8 +257,8 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Setsuzokushi" in {
-    val words = new Parse(Seq(
-      createMockToken("そして", "接続詞,*,*,*,*,*,そして,ソシテ,ソシテ")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("そして", "接続詞,*,*,*,*,*,そして,ソシテ,ソシテ")
     )).words
 
     words.head.word should be ("そして")
@@ -276,8 +266,8 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Fukushi" in {
-    val words = new Parse(Seq(
-      createMockToken("多分", "副詞,一般,*,*,*,*,多分,タブン,タブン")
+    val words = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("多分", "副詞,一般,*,*,*,*,多分,タブン,タブン")
     )).words
 
     words.head.word should be ("多分")
@@ -285,27 +275,27 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Doushi" in {
-    val firstWords = new Parse(Seq(
-      createMockToken("行く", "動詞,自立,*,*,五段・カ行促音便,基本形,行く,イク,イク")
+    val firstWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("行く", "動詞,自立,*,*,五段・カ行促音便,基本形,行く,イク,イク")
     )).words
 
     firstWords.head.word should be ("行く")
     firstWords.head.partOfSpeech should be (Pos.Verb)
 
-    val secondWords = new Parse(Seq(
-      createMockToken("行か", "動詞,自立,*,*,五段・カ行促音便,未然形,行く,イカ,イカ"),
-      createMockToken("ない", "助動詞,*,*,*,特殊・ナイ,基本形,ない,ナイ,ナイ")
+    val secondWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("行か", "動詞,自立,*,*,五段・カ行促音便,未然形,行く,イカ,イカ"),
+      JapaneseTokenParser("ない", "助動詞,*,*,*,特殊・ナイ,基本形,ない,ナイ,ナイ")
     )).words
 
     secondWords.size should be (1)
     secondWords.head.word should be ("行かない")
     secondWords.head.partOfSpeech should be (Pos.Verb)
 
-    val thirdWords = new Parse(Seq(
-      createMockToken("行っ", "動詞,自立,*,*,五段・カ行促音便,連用タ接続,行く,イッ,イッ"),
-      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ"),
-      createMockToken("き", "動詞,非自立,*,*,カ変・クル,連用形,くる,キ,キ"),
-      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ")
+    val thirdWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("行っ", "動詞,自立,*,*,五段・カ行促音便,連用タ接続,行く,イッ,イッ"),
+      JapaneseTokenParser("て", "助詞,接続助詞,*,*,*,*,て,テ,テ"),
+      JapaneseTokenParser("き", "動詞,非自立,*,*,カ変・クル,連用形,くる,キ,キ"),
+      JapaneseTokenParser("て", "助詞,接続助詞,*,*,*,*,て,テ,テ")
     )).words
 
     thirdWords.size should be (1)
@@ -315,20 +305,20 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Doushi setsubi" in {
-    val firstWords = new Parse(Seq(
-      createMockToken("行か", "動詞,自立,*,*,五段・カ行促音便,未然形,行く,イカ,イカ"),
-      createMockToken("れる", "動詞,接尾,*,*,一段,基本形,れる,レル,レル")
+    val firstWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("行か", "動詞,自立,*,*,五段・カ行促音便,未然形,行く,イカ,イカ"),
+      JapaneseTokenParser("れる", "動詞,接尾,*,*,一段,基本形,れる,レル,レル")
     )).words
 
     firstWords.size should be (1)
     firstWords.head.word should be ("行かれる")
     firstWords.head.partOfSpeech should be (Pos.Verb)
 
-    val secondWords = new Parse(Seq(
-      createMockToken("食べ", "動詞,自立,*,*,一段,未然形,食べる,タベ,タベ"),
-      createMockToken("させ", "動詞,接尾,*,*,一段,未然形,させる,サセ,サセ"),
-      createMockToken("られ", "動詞,接尾,*,*,一段,連用形,られる,ラレ,ラレ"),
-      createMockToken("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
+    val secondWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("食べ", "動詞,自立,*,*,一段,未然形,食べる,タベ,タベ"),
+      JapaneseTokenParser("させ", "動詞,接尾,*,*,一段,未然形,させる,サセ,サセ"),
+      JapaneseTokenParser("られ", "動詞,接尾,*,*,一段,連用形,られる,ラレ,ラレ"),
+      JapaneseTokenParser("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
     )).words
 
     secondWords.size should be(1)
@@ -338,48 +328,48 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Doushi + jodoushi" in {
-    val firstWords = new Parse(Seq(
-      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ"),
-      createMockToken("まし", "助動詞,*,*,*,特殊・マス,連用形,ます,マシ,マシ"),
-      createMockToken("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
+    val firstWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ"),
+      JapaneseTokenParser("まし", "助動詞,*,*,*,特殊・マス,連用形,ます,マシ,マシ"),
+      JapaneseTokenParser("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
     )).words
 
     firstWords.size should be (1)
     firstWords.head.word should be ("食べました")
     firstWords.head.partOfSpeech should be (Pos.Verb)
 
-    val secondWords = new Parse(Seq(
-      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
-      createMockToken("ませ", "助動詞,*,*,*,特殊・マス,未然形,ます,マセ,マセ,,"),
-      createMockToken("ん", "助動詞,*,*,*,不変化型,基本形,ん,ン,ン,,")
+    val secondWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
+      JapaneseTokenParser("ませ", "助動詞,*,*,*,特殊・マス,未然形,ます,マセ,マセ,,"),
+      JapaneseTokenParser("ん", "助動詞,*,*,*,不変化型,基本形,ん,ン,ン,,")
     )).words
 
     secondWords.size should be (1)
     secondWords.head.word should be ("食べません")
     secondWords.head.partOfSpeech should be (Pos.Verb)
 
-    val thirdWords = new Parse(Seq(
-      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
-      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ,,"),
-      createMockToken("いる", "動詞,非自立,*,*,一段,基本形,いる,イル,イル,,")
+    val thirdWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
+      JapaneseTokenParser("て", "助詞,接続助詞,*,*,*,*,て,テ,テ,,"),
+      JapaneseTokenParser("いる", "動詞,非自立,*,*,一段,基本形,いる,イル,イル,,")
     )).words
 
     thirdWords.size should be (1)
     thirdWords.head.word should be ("食べている")
     thirdWords.head.partOfSpeech should be (Pos.Verb)
 
-    val fourthWords = new Parse(Seq(
-      createMockToken("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
-      createMockToken("てる", "動詞,非自立,*,*,一段,基本形,てる,テル,テル,,")
+    val fourthWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("食べ", "動詞,自立,*,*,一段,連用形,食べる,タベ,タベ,たべ/食/食べ,"),
+      JapaneseTokenParser("てる", "動詞,非自立,*,*,一段,基本形,てる,テル,テル,,")
     )).words
 
     fourthWords.size should be (1)
     fourthWords.head.word should be ("食べてる")
     fourthWords.head.partOfSpeech should be (Pos.Verb)
 
-    val fifthWords = new Parse(Seq(
-      createMockToken("食べ", "動詞,自立,*,*,一段,未然形,食べる,タベ,タベ,たべ/食/食べ,"),
-      createMockToken("ず", "助動詞,*,*,*,特殊・ヌ,連用ニ接続,ぬ,ズ,ズ,,")
+    val fifthWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("食べ", "動詞,自立,*,*,一段,未然形,食べる,タベ,タベ,たべ/食/食べ,"),
+      JapaneseTokenParser("ず", "助動詞,*,*,*,特殊・ヌ,連用ニ接続,ぬ,ズ,ズ,,")
     )).words
 
     fifthWords.size should be (1)
@@ -388,42 +378,42 @@ class ParseTest extends AnyFlatSpec with MockitoSugar with Matchers{
   }
 
   it should "properly parse Keiyoushi" in {
-    val firstWords = new Parse(Seq(
-      createMockToken("寒い", "形容詞,自立,*,*,形容詞・アウオ段,基本形,寒い,サムイ,サムイ")
+    val firstWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("寒い", "形容詞,自立,*,*,形容詞・アウオ段,基本形,寒い,サムイ,サムイ")
     )).words
 
     firstWords.head.word should be ("寒い")
     firstWords.head.partOfSpeech should be (Pos.Adjective)
 
-    val secondWords = new Parse(Seq(
-      createMockToken("寒く", "形容詞,自立,*,*,形容詞・アウオ段,連用テ接続,寒い,サムク,サムク"),
-      createMockToken("て", "助詞,接続助詞,*,*,*,*,て,テ,テ")
+    val secondWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("寒く", "形容詞,自立,*,*,形容詞・アウオ段,連用テ接続,寒い,サムク,サムク"),
+      JapaneseTokenParser("て", "助詞,接続助詞,*,*,*,*,て,テ,テ")
     )).words
 
     secondWords.size should be (1)
     secondWords.head.word should be ("寒くて")
     secondWords.head.partOfSpeech should be (Pos.Adjective)
 
-    val thirdWords = new Parse(Seq(
-      createMockToken("寒かっ", "形容詞,自立,*,*,形容詞・アウオ段,連用タ接続,寒い,サムカッ,サムカッ"),
-      createMockToken("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
+    val thirdWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("寒かっ", "形容詞,自立,*,*,形容詞・アウオ段,連用タ接続,寒い,サムカッ,サムカッ"),
+      JapaneseTokenParser("た", "助動詞,*,*,*,特殊・タ,基本形,た,タ,タ")
     )).words
 
     thirdWords.size should be (1)
     thirdWords.head.word should be ("寒かった")
     thirdWords.head.partOfSpeech should be (Pos.Adjective)
 
-    val fourthWords = new Parse(Seq(
-      createMockToken("寒けれ", "形容詞,自立,*,*,形容詞・アウオ段,仮定形,寒い,サムケレ,サムケレ"),
-      createMockToken("ば", "助詞,接続助詞,*,*,*,*,ば,バ,バ")
+    val fourthWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("寒けれ", "形容詞,自立,*,*,形容詞・アウオ段,仮定形,寒い,サムケレ,サムケレ"),
+      JapaneseTokenParser("ば", "助詞,接続助詞,*,*,*,*,ば,バ,バ")
     )).words
 
     fourthWords.size should be (1)
     fourthWords.head.word should be ("寒ければ")
     fourthWords.head.partOfSpeech should be (Pos.Adjective)
 
-    val fifthWords = new Parse(Seq(
-      createMockToken("寒けりゃ", "形容詞,自立,*,*,形容詞・アウオ段,仮定縮約１,寒い,サムケリャ,サムケリャ")
+    val fifthWords = new KuromojiIpadic(Seq(
+      JapaneseTokenParser("寒けりゃ", "形容詞,自立,*,*,形容詞・アウオ段,仮定縮約１,寒い,サムケリャ,サムケリャ")
     )).words
 
     fifthWords.head.word should be ("寒けりゃ")
