@@ -31,8 +31,7 @@ class StanfordNLPEn(tokens: Seq[EnglishToken]) extends Parse{
               tokens = Seq(token)))
           }
         } else  {
-          val (lookedUpPOS, grammar) = posMap.getOrElse(token.pos, (Pos.Unknown, Grammar.Unassigned))
-          val pos = if (token.pos.equals(".")) Pos.Symbol else lookedUpPOS
+          val (pos, grammar) = posMap.getOrElse(token.pos, (Pos.Unknown, Grammar.Unassigned))
           parsedWords :+ EnglishWord(lemma = token.lemma, partOfSpeech = pos, grammar = grammar,
             word = token.literal, tokens = Seq(token))
         }
@@ -76,7 +75,16 @@ class StanfordNLPEn(tokens: Seq[EnglishToken]) extends Parse{
     "WP" -> (Pos.Pronoun, Grammar.Unassigned),
     "WP$" -> (Pos.Pronoun, Grammar.Possessive),
     "WRB" -> (Pos.Adverb, Grammar.Unassigned),
-    "Z" -> (Pos.Determiner, Grammar.Unassigned)
+    "Z" -> (Pos.Determiner, Grammar.Unassigned),
+    "''" -> (Pos.Punctuation, Grammar.Unassigned),
+    "``" -> (Pos.Punctuation, Grammar.Unassigned),
+    "-LRB-" -> (Pos.Punctuation, Grammar.Unassigned),
+    "-RRB-" -> (Pos.Punctuation, Grammar.Unassigned),
+    "#" -> (Pos.Punctuation, Grammar.Unassigned),
+    "$" -> (Pos.Punctuation, Grammar.Unassigned),
+    "." -> (Pos.Punctuation, Grammar.Unassigned),
+    ":" -> (Pos.Punctuation, Grammar.Unassigned),
+    "," -> (Pos.Punctuation, Grammar.Unassigned)
   )
 
 }

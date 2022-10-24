@@ -11,16 +11,11 @@ object EnglishTokenParser {
       sentenceEnding = sentenceEnding)
   }
 
-  def parse(freelingOutput: String): EnglishToken = {
+  def parse(freelingOutput: String, sentenceEnding: Boolean): EnglishToken = {
     val outputArray = freelingOutput.split("\\s+")
-    if (outputArray.isEmpty)
-      EnglishToken(literal = "",
-        lemma = "",
-        pos = "",
-        sentenceEnding = true) else
     EnglishToken(literal = outputArray(0),
       lemma = outputArray(1),
       pos = outputArray(2),
-      sentenceEnding = false)
+      sentenceEnding = sentenceEnding)
   }
 }

@@ -1,18 +1,11 @@
 package com.megafarad.ve_scala.japanese
 
-import com.atilika.kuromoji.ipadic.Tokenizer
 import com.megafarad.ve_scala.Pos
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class KuromojiIpadicTest extends AnyFlatSpec with Matchers {
   private def parseIntoWords(sentence: String): Seq[JapaneseWord] = {
-    val tokensList = new Tokenizer().tokenize(sentence)
-
-    tokensList forEach  {
-      token => println(token.getSurface + " -> " + token.getAllFeatures)
-    }
-
     val parser = new KuromojiIpadic(sentence)
     val words = parser.words
     words

@@ -18,6 +18,7 @@ object Pos extends Enumeration {
       Number,
       Unknown,
       Symbol,
+      Punctuation,
       Other,
       TBD = Value
 
