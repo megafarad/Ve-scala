@@ -15,7 +15,7 @@ import scala.util.{Failure, Success}
 trait ParseRoutes extends StrictLogging {
   val parseService: ParseService
 
-  def parseRoutes: Route = pathPrefix("api", "parse") { something =>
+  def parseRoutes: Route = pathPrefix("api", "parse") { _ =>
     post {
       decodeRequest {
         entity(as[ParseRequest]) { request =>
@@ -24,7 +24,6 @@ trait ParseRoutes extends StrictLogging {
               logger.error("Unable to parse", exception)
               complete(StatusCodes.InternalServerError)
             case Success(value) =>
-              logger.info(something)
               complete(StatusCodes.OK, value)
           }
         }
