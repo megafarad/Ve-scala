@@ -23,9 +23,14 @@ lazy val service = (project in file("service"))
       "io.circe" %% "circe-parser" % circeVersion,
       "de.heikoseeberger" %% "akka-http-circe" % "1.40.0-RC3",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
-    )
+    ),
+    Docker / packageName := "ve-scala-service",
+    dockerBaseImage := "amazoncorretto:19",
+    dockerExposedPorts := Seq(9000)
   )
   .dependsOn(core)
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
+
 
 val AkkaVersion = "2.6.20"
 val AkkaHttpVersion = "10.2.10"
