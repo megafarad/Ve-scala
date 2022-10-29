@@ -2,6 +2,7 @@ package com.megafarad.ve_scala.service.api
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.directives.Credentials
 import akka.http.scaladsl.server.Route
 import com.megafarad.ve_scala.service.application.ParseService
 import com.megafarad.ve_scala.service.model.ParseRequest
@@ -12,23 +13,42 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 
 import scala.util.{Failure, Success}
 
-trait ParseRoutes extends StrictLogging {
+trait ParseRoutes extends StrictLogging with Auth0Config {
   val parseService: ParseService
 
   def parseRoutes: Route = pathPrefix("api", "parse") { _ =>
     post {
       decodeRequest {
         entity(as[ParseRequest]) { request =>
-          onComplete(parseService.parse(request.language, request.text)) {
-            case Failure(exception) =>
-              logger.error("Unable to parse", exception)
-              complete(StatusCodes.InternalServerError)
-            case Success(value) =>
-              complete(StatusCodes.OK, value)
+          if (auth0enabled) {
+            authenticateOAuth2("KobuKobu", Auth0Authenticator(domain, audience)) {
+              _ =>
+                defaultHandling(request)
+            }
+          } else {
+            defaultHandling(request)
           }
         }
       }
     }
-
   }
+
+  private def defaultHandling(request: ParseRequest): Route = {
+    onComplete(parseService.parse(request.language, request.text)) {
+      case Failure(exception) =>
+        logger.error("Unable to parse", exception)
+        complete(StatusCodes.InternalServerError)
+      case Success(value) =>
+        complete(StatusCodes.OK, value)
+    }
+  }
+
+  private def oAuthAuthenticator(credentials: Credentials) = credentials match {
+    case Credentials.Missing => None
+    case p @ Credentials.Provided(token) =>
+      logger.info(token)
+      Some("Success")
+  }
+
+
 }

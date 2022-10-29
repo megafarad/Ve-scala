@@ -21,6 +21,9 @@ lazy val service = (project in file("service"))
       "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion,
+      "com.auth0" % "jwks-rsa" % "0.6.1",
+      "com.github.jwt-scala" %% "jwt-core" % "9.1.1",
+      "com.github.jwt-scala" %% "jwt-circe" % "9.1.1",
       "de.heikoseeberger" %% "akka-http-circe" % "1.40.0-RC3",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
     ),
