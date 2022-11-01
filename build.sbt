@@ -8,6 +8,7 @@ lazy val commonDependencies = Seq("org.slf4j" % "slf4j-api" % "2.0.3",
 
 lazy val core = (project in file("core"))
   .settings(
+    name := "ve-scala-core",
     libraryDependencies ++= Seq("com.atilika.kuromoji" % "kuromoji-ipadic" % "0.9.0",
       "edu.stanford.nlp" % "stanford-corenlp" % "4.5.1",
       "edu.stanford.nlp" % "stanford-corenlp" % "4.5.1" classifier "models") ++ commonDependencies
@@ -15,13 +16,14 @@ lazy val core = (project in file("core"))
 
 lazy val service = (project in file("service"))
   .settings(
+    name := "ve-scala-service",
     libraryDependencies ++= commonDependencies ++ Seq(
       "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
       "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
       "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion,
-      "com.auth0" % "jwks-rsa" % "0.6.1",
+      "com.auth0" % "jwks-rsa" % "0.21.2",
       "com.github.jwt-scala" %% "jwt-core" % "9.1.1",
       "com.github.jwt-scala" %% "jwt-circe" % "9.1.1",
       "de.heikoseeberger" %% "akka-http-circe" % "1.40.0-RC3",
