@@ -11,6 +11,7 @@ import com.megafarad.ve_scala.japanese.KuromojiIpadic
 
 val sentence = "お寿司が食べたい。"
 val parser = new KuromojiIpadic(sentence)
+
 parser.words.foreach {
   word => println(word.word + " -> " + word.partOfSpeech)
 }
