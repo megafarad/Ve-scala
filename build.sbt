@@ -6,6 +6,14 @@ lazy val commonDependencies = Seq("org.slf4j" % "slf4j-api" % "2.0.3",
   "ch.qos.logback" % "logback-classic" % "1.4.4",
   "org.scalatest" %% "scalatest" % "3.2.14" % "test")
 
+lazy val global = (project in file("."))
+  .settings(
+    name := "ve-scala",
+    publish / skip := true
+  )
+  .aggregate(core, service)
+  .dependsOn(core)
+
 lazy val core = (project in file("core"))
   .settings(
     name := "ve-scala-core",
