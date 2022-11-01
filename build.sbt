@@ -2,6 +2,8 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.13.10"
 
+ThisBuild / crossPaths := false
+
 lazy val commonDependencies = Seq("org.slf4j" % "slf4j-api" % "2.0.3",
   "ch.qos.logback" % "logback-classic" % "1.4.4",
   "org.scalatest" %% "scalatest" % "3.2.14" % "test")
@@ -25,6 +27,7 @@ lazy val core = (project in file("core"))
 lazy val service = (project in file("service"))
   .settings(
     name := "ve-scala-service",
+    publish / skip := true,
     libraryDependencies ++= commonDependencies ++ Seq(
       "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
       "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
