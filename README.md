@@ -5,6 +5,15 @@ A Scala port of <a href="https://github.com/Kimtaro/ve">Ve</a> by Kim Ahlström.
 * Based on the <a href="https://github.com/Kimtaro/ve/tree/master/java">Java port</a> of <b><a href="https://github.com/shirakaba/">Jamie Birch</a></b>, original <a href="https://github.com/Kimtaro/ve">Ruby implementation</a> by <b><a href="https://github.com/Kimtaro/">Kim Ahlström</b></a>
 
 # Usage
+
+First, add the following dependency:
+
+```
+libraryDependencies += "com.megafarad" % "ve-scala-core" % "0.1.0"
+```
+
+Then, pick a parser and use it.
+
 For Japanese:
 ```scala
 import com.megafarad.ve_scala.japanese.KuromojiIpadic
