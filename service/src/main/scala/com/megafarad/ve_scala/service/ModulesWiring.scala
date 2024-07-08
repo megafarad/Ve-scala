@@ -1,6 +1,6 @@
 package com.megafarad.ve_scala.service
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.megafarad.ve_scala.service.application.ParseService
 
 trait ModulesWiring {

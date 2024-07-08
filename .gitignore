@@ -1,3 +1,66 @@
-/null/
-/.idea/
-/.bsp/
+# sbt specific
+target/
+project/target/
+project/project/
+dist/
+lib_managed/
+src_managed/
+.sbt/
+.history
+.cache
+.lib/
+
+# IDEA specific
+.idea/
+null/
+.bsp/
+*.iws
+*.iml
+*.ipr
+
+# Scala-IDE specific
+.cache-main
+.scala_dependencies
+.worksheet
+
+# Eclipse specific
+.metadata/
+.classpath
+.project
+.settings/
+
+# Mac specific
+.DS_Store
+
+# Linux specific
+*~
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+*.log
+
+# Compiled class files
+*.class
+
+# JAR files
+*.jar
+*.war
+*.ear
+
+# Generated files
+*.ctxt
+
+# Coverage reports
+coverage/
+*.hprof
+
+# Temporary files
+.tmp
+*.swp
+
+# Other IDEs and tools
+.vscode/

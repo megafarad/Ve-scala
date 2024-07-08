@@ -1,6 +1,6 @@
 package com.megafarad.ve_scala.service.api
 
-import akka.http.scaladsl.server.directives.{Credentials, SecurityDirectives}
+import org.apache.pekko.http.scaladsl.server.directives.{Credentials, SecurityDirectives}
 import com.auth0.jwk.UrlJwkProvider
 import pdi.jwt.{JwtAlgorithm, JwtBase64, JwtCirce, JwtClaim}
 

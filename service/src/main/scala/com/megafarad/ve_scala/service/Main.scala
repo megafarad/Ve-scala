@@ -1,7 +1,7 @@
 package com.megafarad.ve_scala.service
 
-import akka.actor._
-import akka.http.scaladsl._
+import org.apache.pekko.actor._
+import org.apache.pekko.http.scaladsl._
 import com.megafarad.ve_scala.service.api.ParseRoutes
 import com.typesafe.scalalogging.StrictLogging
 
