@@ -1,4 +1,4 @@
-ThisBuild / version := "0.2.0"
+ThisBuild / version := "0.2.1"
 
 ThisBuild / scalaVersion := "2.13.10"
 
@@ -41,7 +41,7 @@ lazy val service = (project in file("service"))
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
     ),
     Docker / packageName := "ve-scala-service",
-    dockerBaseImage := "amazoncorretto:19",
+    dockerBaseImage := "amazoncorretto:21",
     dockerExposedPorts := Seq(9000)
   )
   .dependsOn(core)
