@@ -9,7 +9,7 @@ A Scala port of <a href="https://github.com/Kimtaro/ve">Ve</a> by Kim Ahlström.
 First, add the following dependency:
 
 ```
-libraryDependencies += "com.megafarad" % "ve-scala-core" % "0.1.0"
+libraryDependencies += "com.megafarad" % "ve-scala-core" % "0.2.1"
 ```
 
 Then, pick a parser and use it.

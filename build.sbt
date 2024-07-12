@@ -4,6 +4,8 @@ ThisBuild / scalaVersion := "2.13.10"
 
 ThisBuild / crossPaths := false
 
+ThisBuild / versionScheme := Some("early-semver")
+
 lazy val commonDependencies = Seq("org.slf4j" % "slf4j-api" % "2.0.12",
   "ch.qos.logback" % "logback-classic" % "1.5.6",
   "org.scalatest" %% "scalatest" % "3.2.19" % "test")
